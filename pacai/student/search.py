@@ -2,7 +2,17 @@
 In this file, you will implement generic search algorithms which are called by Pacman agents.
 """
 
-from pacai.util import stack
+from pacai.util import stack, queue
+
+def getActionPath(problem, node, parent_dict):
+    action_list = []
+    while node != problem.startingState():
+        node, action = parent_dict[node][0], parent_dict[node][1]
+        # print(node, action)
+        action_list.insert(0, action)
+    # print(action_list)
+    # print('Solution length = %s' % str(len(action_list)))
+    return action_list
 
 def depthFirstSearch(problem):
     """
@@ -18,31 +28,70 @@ def depthFirstSearch(problem):
     print("Is the start a goal?: %s" % (problem.isGoal(problem.startingState())))
     print("Start's successors: %s" % (problem.successorStates(problem.startingState())))
     
-    Start: (5, 5)
-    Is the start a goal?: False
-    Start's successors: [((5, 4), 'South', 1), ((4, 5), 'West', 1)]
+    tiny:
+        path cost 10
+        expanded 15
+    medium:
+        path cost 130
+        expanded 146
+    big:
+        path cost 210
+        expanded 390
     ```
     """
-    frontier = stack.Stack()
-    frontier.push(problem.startingState())
 
-    while not frontier.isEmpty():
-        node = frontier.pop()
-        print(problem.isGoal(problem.successorStates(node)[0]))
+    fringe = stack.Stack()
+    fringe.push(problem.startingState())
+    parent_dict = {}
 
+    while not fringe.isEmpty():
+        node = fringe.pop()
+        # print('curr node = %s' % str(node))
+        if problem.isGoal(node):
+            # print('found goal: %s' % str(node))
+            # print('Visit History: %s' % str(problem.getVisitHistory()))
+            # print('Expanded Count: %s' % str(problem.getExpandedCount()))
+            return getActionPath(problem, node, parent_dict)
 
-
-
-    
+        for child in problem.successorStates(node):
+            if child[0] not in problem.getVisitHistory():
+                # print('pushing child to fringe: %s' % str(child[0]))
+                fringe.push(child[0])
+                parent_dict[child[0]] = tuple([node, child[1]])
 
     raise NotImplementedError()
 
 def breadthFirstSearch(problem):
     """
     Search the shallowest nodes in the search tree first. [p 81]
+
+    medium:
+        path cost 68
+        expanded 275
+    big:
+        path cost 210
+        expanded 620
     """
 
-    # *** Your Code Here ***
+    fringe = queue.Queue()
+    fringe.push(problem.startingState())
+    parent_dict = {}
+
+    while not fringe.isEmpty():
+        node = fringe.pop()
+        # print('curr node = %s' % str(node))
+        if problem.isGoal(node):
+            # print('found goal: %s' % str(node))
+            # print('Visit History: %s' % str(problem.getVisitHistory()))
+            # print('Expanded Count: %s' % str(problem.getExpandedCount()))
+            return getActionPath(problem, node, parent_dict)
+
+        for child in problem.successorStates(node):
+            if child[0] not in problem.getVisitHistory():
+                # print('pushing child to fringe: %s' % str(child[0]))
+                fringe.push(child[0])
+                parent_dict[child[0]] = tuple([node, child[1]])
+
     raise NotImplementedError()
 
 def uniformCostSearch(problem):
