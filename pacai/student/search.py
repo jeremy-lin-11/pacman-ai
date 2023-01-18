@@ -2,7 +2,7 @@
 In this file, you will implement generic search algorithms which are called by Pacman agents.
 """
 
-import pacai.util.stack
+from pacai.util import stack
 
 def depthFirstSearch(problem):
     """
@@ -23,10 +23,15 @@ def depthFirstSearch(problem):
     Start's successors: [((5, 4), 'South', 1), ((4, 5), 'West', 1)]
     ```
     """
-    stack = Stack()
+    frontier = stack.Stack()
+    frontier.push(problem.startingState())
 
-    stack.push(1)
-    print(stack.pop())
+    while not frontier.isEmpty():
+        node = frontier.pop()
+        print(problem.isGoal(problem.successorStates(node)[0]))
+
+
+
 
     
 
