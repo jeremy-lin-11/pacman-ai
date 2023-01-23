@@ -39,7 +39,6 @@ def depthFirstSearch(problem):
         expanded 390
     ```
     """
-
     fringe = stack.Stack()
     fringe.push(problem.startingState())
     parent_dict = {}
