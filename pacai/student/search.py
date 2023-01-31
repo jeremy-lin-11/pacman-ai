@@ -125,7 +125,6 @@ def uniformCostSearch(problem):
                 child_path = path.copy()
                 child_path.append(action)
                 path_cost = problem.actionsCost(child_path)
-                print(path_cost)
                 fringe.push((child_state, child_path), path_cost)
 
     raise NotImplementedError()
