@@ -4,17 +4,6 @@ In this file, you will implement generic search algorithms which are called by P
 
 from pacai.util import stack, queue, priorityQueue
 
-def getActionPath(problem, node, parent_dict):
-    action_list = []
-    while node != problem.startingState():
-        node, action = parent_dict[node][0], parent_dict[node][1]
-        # print(node, action)
-        action_list.insert(0, action)
-    # print(action_list)
-    # print('Solution length = %s' % str(len(action_list)))
-    return action_list
-
-
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first [p 85].
@@ -40,22 +29,26 @@ def depthFirstSearch(problem):
         expanded 390
     """
     fringe = stack.Stack()
-    fringe.push(problem.startingState())
-    parent_dict = {}
+    fringe.push((problem.startingState(), []))
 
     while not fringe.isEmpty():
         node = fringe.pop()
+        state = node[0]
+        path = node[1]
         # print('curr node = %s' % str(node))
-        if problem.isGoal(node):
+        if problem.isGoal(state):
             # print('found goal: %s' % str(node))
             # print('Visit History: %s' % str(problem.getVisitHistory()))
             # print('Expanded Count: %s' % str(problem.getExpandedCount()))
-            return getActionPath(problem, node, parent_dict)
-        for child in problem.successorStates(node):
-            if child[0] not in problem.getVisitHistory():
+            return path
+        for child in problem.successorStates(state):
+            child_state = child[0]
+            action = child[1]
+            if child_state not in problem.getVisitHistory():
                 # print('pushing child to fringe: %s' % str(child[0]))
-                fringe.push(child[0])
-                parent_dict[child[0]] = tuple([node, child[1]])
+                child_path = path.copy()
+                child_path.append(action)
+                fringe.push((child_state, child_path))
 
     raise NotImplementedError()
 
@@ -72,26 +65,28 @@ def breadthFirstSearch(problem):
     """
 
     fringe = queue.Queue()
-    fringe.push(problem.startingState())
-    parent_dict = {}
+    fringe.push((problem.startingState(), []))
 
     if problem.isGoal(problem.startingState()):
         # print('found goal: %s' % str(node))
-        return getActionPath(problem, problem.startingState(), parent_dict)
+        return []
 
     while not fringe.isEmpty():
         node = fringe.pop()
+        state = node[0]
+        path = node[1]
         # print('curr node = %s' % str(node))
-        for child in problem.successorStates(node):
-            # state = child[0]
-            # action = child[1]
-            if problem.isGoal(child[0]):
-                parent_dict[child[0]] = tuple([node, child[1]])
-                return getActionPath(problem, child[0], parent_dict)
-            if child[0] not in problem.getVisitHistory():
+        for child in problem.successorStates(state):
+            child_state = child[0]
+            action = child[1]
+            child_path = path.copy()
+            child_path.append(action)
+
+            if problem.isGoal(child_state):
+                return child_path
+            if child_state not in problem.getVisitHistory():
                 # print('pushing child to fringe: %s' % str(child[0]))
-                fringe.push(child[0])
-                parent_dict[child[0]] = tuple([node, child[1]])
+                fringe.push((child_state, child_path))
 
     raise NotImplementedError()
 
@@ -101,20 +96,22 @@ def uniformCostSearch(problem):
     """
 
     fringe = priorityQueue.PriorityQueue()
-    fringe.push(problem.startingState(), 0)
-    parent_dict = {}
+    fringe.push((problem.startingState(), []), 0)
 
     while not fringe.isEmpty():
         node = fringe.pop()
-        if problem.isGoal(node):
-            return getActionPath(problem, node, parent_dict)
-        for child in problem.successorStates(node):
-            state = child[0]
+        state = node[0]
+        path = node[1]
+        if problem.isGoal(state):
+            return path
+        for child in problem.successorStates(state):
+            child_state = child[0]
             action = child[1]
-            if state not in problem.getVisitHistory():
-                parent_dict[state] = tuple([node, action])
-                cost = problem.actionsCost(getActionPath(problem, state, parent_dict))
-                fringe.push(state, cost)
+            if child_state not in problem.getVisitHistory():
+                child_path = path.copy()
+                child_path.append(action)
+                path_cost = problem.actionsCost(child_path)
+                fringe.push((child_state, child_path), path_cost)
 
 
     raise NotImplementedError()
