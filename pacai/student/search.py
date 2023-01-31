@@ -14,6 +14,7 @@ def getActionPath(problem, node, parent_dict):
     # print('Solution length = %s' % str(len(action_list)))
     return action_list
 
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first [p 85].
@@ -50,7 +51,6 @@ def depthFirstSearch(problem):
             # print('Visit History: %s' % str(problem.getVisitHistory()))
             # print('Expanded Count: %s' % str(problem.getExpandedCount()))
             return getActionPath(problem, node, parent_dict)
-
         for child in problem.successorStates(node):
             if child[0] not in problem.getVisitHistory():
                 # print('pushing child to fringe: %s' % str(child[0]))
@@ -101,8 +101,22 @@ def uniformCostSearch(problem):
     """
 
     fringe = priorityQueue.PriorityQueue()
-    fringe.push(problem.startingState())
+    fringe.push(problem.startingState(), 0)
     parent_dict = {}
+
+    while not fringe.isEmpty():
+        node = fringe.pop()
+        if problem.isGoal(node):
+            return getActionPath(problem, node, parent_dict)
+        for child in problem.successorStates(node):
+            state = child[0]
+            action = child[1]
+            if state not in problem.getVisitHistory():
+                parent_dict[state] = tuple([node, action])
+                cost = problem.actionsCost(getActionPath(problem, state, parent_dict))
+                fringe.push(state, cost)
+
+
     raise NotImplementedError()
 
 def aStarSearch(problem, heuristic):
