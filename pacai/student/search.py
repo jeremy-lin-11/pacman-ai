@@ -93,6 +93,15 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """
     Search the node of least total cost first. p 73
+    meddot:
+        nodes expanded: 190
+        total cost: 1
+    medmaze:
+        nodes expanded: 274
+        total cost: 68
+    medscary:
+        nodes expanded: 108
+        total cost: 68719479864
     """
 
     fringe = priorityQueue.PriorityQueue()
@@ -102,17 +111,22 @@ def uniformCostSearch(problem):
         node = fringe.pop()
         state = node[0]
         path = node[1]
+
         if problem.isGoal(state):
             return path
+
         for child in problem.successorStates(state):
             child_state = child[0]
             action = child[1]
-            if child_state not in problem.getVisitHistory():
+            child_path = path.copy()
+            child_path.append(action)
+
+            if child_state not in problem.getVisitHistory() or child_path < path:
                 child_path = path.copy()
                 child_path.append(action)
                 path_cost = problem.actionsCost(child_path)
+                print(path_cost)
                 fringe.push((child_state, child_path), path_cost)
-
 
     raise NotImplementedError()
 
@@ -121,5 +135,26 @@ def aStarSearch(problem, heuristic):
     Search the node that has the lowest combined cost and heuristic first.
     """
 
-    # *** Your Code Here ***
+    fringe = priorityQueue.PriorityQueue()
+    fringe.push((problem.startingState(), []), 0)
+
+    while not fringe.isEmpty():
+        node = fringe.pop()
+        state = node[0]
+        path = node[1]
+
+        if problem.isGoal(state):
+            return path
+
+        for child in problem.successorStates(state):
+            child_state = child[0]
+            action = child[1]
+            child_path = path.copy()
+            child_path.append(action)
+
+            if child_state not in problem.getVisitHistory() or child_path < path:
+                child_path = path.copy()
+                child_path.append(action)
+                path_cost = problem.actionsCost(child_path) + heuristic(child_state, problem)
+                fringe.push((child_state, child_path), path_cost)
     raise NotImplementedError()
