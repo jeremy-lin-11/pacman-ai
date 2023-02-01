@@ -28,27 +28,22 @@ def depthFirstSearch(problem):
         path cost 210
         expanded 390
     """
+    if problem.isGoal(problem.startingState()):
+        return []
+    
     fringe = stack.Stack()
     fringe.push((problem.startingState(), []))
+    visited = set()
 
     while not fringe.isEmpty():
-        node = fringe.pop()
-        state = node[0]
-        path = node[1]
-        # print('curr node = %s' % str(node))
+        state, path = fringe.pop()
         if problem.isGoal(state):
-            # print('found goal: %s' % str(node))
-            # print('Visit History: %s' % str(problem.getVisitHistory()))
-            # print('Expanded Count: %s' % str(problem.getExpandedCount()))
             return path
-        for child in problem.successorStates(state):
-            child_state = child[0]
-            action = child[1]
-            if child_state not in problem.getVisitHistory():
+        for child, action, cost in problem.successorStates(state):
+            if child not in visited:
                 # print('pushing child to fringe: %s' % str(child[0]))
-                child_path = path.copy()
-                child_path.append(action)
-                fringe.push((child_state, child_path))
+                fringe.push((child, path + [action]))
+                visited.add(child)
 
     raise NotImplementedError()
 
@@ -63,30 +58,21 @@ def breadthFirstSearch(problem):
         path cost 210
         expanded 617
     """
-
+    if problem.isGoal(problem.startingState()):
+        return []
+    
     fringe = queue.Queue()
     fringe.push((problem.startingState(), []))
-
-    if problem.isGoal(problem.startingState()):
-        # print('found goal: %s' % str(node))
-        return []
+    visited = set()
 
     while not fringe.isEmpty():
-        node = fringe.pop()
-        state = node[0]
-        path = node[1]
-        # print('curr node = %s' % str(node))
-        for child in problem.successorStates(state):
-            child_state = child[0]
-            action = child[1]
-            child_path = path.copy()
-            child_path.append(action)
-
-            if problem.isGoal(child_state):
-                return child_path
-            if child_state not in problem.getVisitHistory():
-                # print('pushing child to fringe: %s' % str(child[0]))
-                fringe.push((child_state, child_path))
+        state, path = fringe.pop()
+        for child, action, cost in problem.successorStates(state):
+            if problem.isGoal(child):
+                return path + [action]
+            if child not in visited:
+                fringe.push((child, path + [action]))
+                visited.add(child)
 
     raise NotImplementedError()
 
@@ -103,29 +89,21 @@ def uniformCostSearch(problem):
         nodes expanded: 108
         total cost: 68719479864
     """
+    if problem.isGoal(problem.startingState()):
+        return []
 
     fringe = priorityQueue.PriorityQueue()
     fringe.push((problem.startingState(), []), 0)
+    visited = set()
 
     while not fringe.isEmpty():
-        node = fringe.pop()
-        state = node[0]
-        path = node[1]
-
+        state, path = fringe.pop()
         if problem.isGoal(state):
             return path
-
-        for child in problem.successorStates(state):
-            child_state = child[0]
-            action = child[1]
-            child_path = path.copy()
-            child_path.append(action)
-
-            if child_state not in problem.getVisitHistory() or child_path < path:
-                child_path = path.copy()
-                child_path.append(action)
-                path_cost = problem.actionsCost(child_path)
-                fringe.push((child_state, child_path), path_cost)
+        for child, action, cost in problem.successorStates(state):
+            if child not in visited:
+                fringe.push((child, path + [action]), problem.actionsCost(path + [action]))
+                visited.add(child)
 
     raise NotImplementedError()
 
@@ -134,26 +112,20 @@ def aStarSearch(problem, heuristic):
     Search the node that has the lowest combined cost and heuristic first.
     """
 
+    if problem.isGoal(problem.startingState()):
+        return []
+
     fringe = priorityQueue.PriorityQueue()
     fringe.push((problem.startingState(), []), 0)
+    visited = set()
 
     while not fringe.isEmpty():
-        node = fringe.pop()
-        state = node[0]
-        path = node[1]
-
+        state, path = fringe.pop()
         if problem.isGoal(state):
             return path
+        for child, action, cost in problem.successorStates(state):
+            if child not in visited:
+                fringe.push((child, path + [action]), problem.actionsCost(path + [action]) + heuristic(child, problem))
+                visited.add(child)
 
-        for child in problem.successorStates(state):
-            child_state = child[0]
-            action = child[1]
-            child_path = path.copy()
-            child_path.append(action)
-
-            if child_state not in problem.getVisitHistory() or child_path < path:
-                child_path = path.copy()
-                child_path.append(action)
-                path_cost = problem.actionsCost(child_path) + heuristic(child_state, problem)
-                fringe.push((child_state, child_path), path_cost)
     raise NotImplementedError()

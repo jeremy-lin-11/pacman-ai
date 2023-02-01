@@ -13,6 +13,7 @@ from pacai.core.search.position import PositionSearchProblem
 from pacai.core.search.problem import SearchProblem
 from pacai.agents.base import BaseAgent
 from pacai.agents.search.base import SearchAgent
+from pacai.core.directions import Directions
 
 class CornersProblem(SearchProblem):
     """
@@ -64,7 +65,7 @@ class CornersProblem(SearchProblem):
                 logging.warning('Warning: no food in corner ' + str(corner))
 
         # *** Your Code Here ***
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
     def actionsCost(self, actions):
         """
@@ -84,6 +85,39 @@ class CornersProblem(SearchProblem):
                 return 999999
 
         return len(actions)
+    
+    def startingState(self):
+        return self.startingPosition
+    
+    def isGoal(self, state):
+        for corner in self.corners:
+            if corner not in self._visitHistory:
+                return False
+        self._visitedLocations.add(state)
+        coordinates = state
+        self._visitHistory.append(coordinates)
+        return True
+    
+    def successorStates(self, state):
+        successors = []
+
+        for action in Directions.CARDINAL:
+            x, y = state
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+
+            if (not hitsWall):
+                nextState = (nextx, nexty)
+                successors.append((nextState, action, 1))
+
+        self._numExpanded += 1
+        if (state not in self._visitedLocations):
+            self._visitedLocations.add(state)
+            coordinates = state
+            self._visitHistory.append(coordinates)
+
+        return successors
 
 def cornersHeuristic(state, problem):
     """
