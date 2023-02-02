@@ -187,9 +187,9 @@ def foodHeuristic(state, problem):
     """
     # Dist to furthest food
     position = state[0]
-    foodGrid = state[1].copy()
+    foodGrid = state[1]
     h = 0
-    max_dist = float("-inf")
+    max_dist = 0
     for food in foodGrid.asList(True):
         food_dist = distance.manhattan(position, food)
         if food_dist > max_dist:
@@ -239,31 +239,25 @@ class ClosestDotSearchAgent(SearchAgent):
         # problem = AnyFoodSearchProblem(gameState)
 
         # *** Your Code Here ***
-        startPosition = gameState.getPacmanPosition()
-        food = gameState.getFood()
-        walls = gameState.getWalls()
-        x, y = startPosition
-        if food[x][y]:
+        # startPosition = gameState.getPacmanPosition()
+        # food = gameState.getFood()
+        # walls = gameState.getWalls()
+        problem = AnyFoodSearchProblem(gameState)
+        if problem.isGoal(problem.startingState()):
             return []
 
         fringe = queue.Queue()
-        fringe.push((startPosition, []))
+        fringe.push((problem.startingState(), []))
         visited = set()
 
         while not fringe.isEmpty():
-            pos, path = fringe.pop()
-            x, y = pos
-            if food[x][y]:
-                return path
-            
-            for nextPos in Actions.getLegalNeighbors(pos, walls):
-                x, y = nextPos
-                if food[x][y]:
+            state, path = fringe.pop()
+            for child, action, cost in problem.successorStates(state):
+                if problem.isGoal(child):
                     return path + [action]
-                if nextPos not in visited:
-                    fringe.push((nextPos, path + [action]))
-                    visited.add(nextPos)
-        
+                if child not in visited:
+                    fringe.push((child, path + [action]))
+                    visited.add(child)
         # raise NotImplementedError()
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -292,9 +286,21 @@ class AnyFoodSearchProblem(PositionSearchProblem):
 
         # Store the food for later reference.
         self.food = gameState.getFood()
-        # x, y = gameState.getAgentPosition()
-        # self.goal = (x,y) if self.food[x][y]
 
+    def isGoal(self, state):
+        x, y = state
+        if not self.food[x][y]:
+            return False
+
+        # Register the locations we have visited.
+        # This allows the GUI to highlight them.
+        self._visitedLocations.add(state)
+        # Note: visit history requires coordinates not states. In this situation
+        # they are equivalent.
+        coordinates = state
+        self._visitHistory.append(coordinates)
+
+        return True
 
 class ApproximateSearchAgent(BaseAgent):
     """
