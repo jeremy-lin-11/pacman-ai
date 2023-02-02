@@ -30,7 +30,7 @@ def depthFirstSearch(problem):
     """
     if problem.isGoal(problem.startingState()):
         return []
-    
+
     fringe = stack.Stack()
     fringe.push((problem.startingState(), []))
     visited = set()
@@ -60,7 +60,7 @@ def breadthFirstSearch(problem):
     """
     if problem.isGoal(problem.startingState()):
         return []
-    
+
     fringe = queue.Queue()
     fringe.push((problem.startingState(), []))
     visited = set()
@@ -102,7 +102,8 @@ def uniformCostSearch(problem):
             return path
         for child, action, cost in problem.successorStates(state):
             if child not in visited:
-                fringe.push((child, path + [action]), problem.actionsCost(path + [action]))
+                fringe.push((child, path + [action]),
+                            problem.actionsCost(path + [action]))
                 visited.add(child)
 
     raise NotImplementedError()
@@ -125,7 +126,8 @@ def aStarSearch(problem, heuristic):
             return path
         for child, action, cost in problem.successorStates(state):
             if child not in visited:
-                fringe.push((child, path + [action]), problem.actionsCost(path + [action]) + heuristic(child, problem))
+                fringe.push((child, path + [action]),
+                            problem.actionsCost(path + [action]) + heuristic(child, problem))
                 visited.add(child)
 
     raise NotImplementedError()
