@@ -90,7 +90,7 @@ class ReflexAgent(BaseAgent):
         score -= 2 * minFood
         # big sad if yellow man isn't moving
         if action == 'STOP':
-            score -= 50
+            score -= 20
         # happy if he eating
         if(successorGameState.getNumFood() < currentGameState.getNumFood()):
             score += 10
