@@ -2,6 +2,8 @@ import random
 
 from pacai.agents.base import BaseAgent
 from pacai.agents.search.multiagent import MultiAgentSearchAgent
+from pacai.core.distance import *
+from pacai.core.directions import *
 
 class ReflexAgent(BaseAgent):
     """
@@ -51,14 +53,46 @@ class ReflexAgent(BaseAgent):
         successorGameState = currentGameState.generatePacmanSuccessor(action)
 
         # Useful information you can extract.
-        # newPosition = successorGameState.getPacmanPosition()
-        # oldFood = currentGameState.getFood()
-        # newGhostStates = successorGameState.getGhostStates()
-        # newScaredTimes = [ghostState.getScaredTimer() for ghostState in newGhostStates]
+        newPosition = successorGameState.getPacmanPosition()
+        oldFood = currentGameState.getFood()
+        ghostPos = successorGameState.getGhostPositions()
+        newGhostStates = successorGameState.getGhostStates()
+        newScaredTimes = [ghostState.getScaredTimer() for ghostState in newGhostStates]
 
         # *** Your Code Here ***
+        score = successorGameState.getScore()
 
-        return successorGameState.getScore()
+        minGhost = float("inf")
+        for ghost in ghostPos:
+            minGhost = min(minGhost, manhattan(newPosition, ghost))
+        
+        # we die
+        if minGhost == 0:
+            return float("-inf")
+
+        # we win
+        if successorGameState.isGoal():
+            return float("inf")
+        
+        newFoodPos = successorGameState.getFood().asList()
+
+        # optimistic dist from pacman to all the foods
+        foodDist = []
+        for food in newFoodPos:
+            foodDist.append(manhattan(newPosition, food))
+
+        # Find closest food
+        minFood = min(foodDist)
+
+        # happy score if yellow man far from spooky poopy
+        score += 2 * minGhost
+        # sad score if yellow man far from yummy tummy
+        score -= 2 * minFood
+        # big sad if yellow man isn't moving
+        if action == 'STOP':
+            score -= 20
+
+        return score
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
