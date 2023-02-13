@@ -90,7 +90,7 @@ class ReflexAgent(BaseAgent):
         score -= 2 * minFood
         # big sad if yellow man isn't moving
         if action == 'STOP':
-            score -= 20
+            score -= 50
 
         return score
 
