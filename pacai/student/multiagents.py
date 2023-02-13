@@ -71,7 +71,7 @@ class ReflexAgent(BaseAgent):
             return float("-inf")
 
         # we win
-        if successorGameState.isGoal():
+        if successorGameState.isWin():
             return float("inf")
         
         newFoodPos = successorGameState.getFood().asList()
