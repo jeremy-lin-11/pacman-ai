@@ -357,8 +357,16 @@ def betterEvaluationFunction(currentGameState):
 
     DESCRIPTION: <write something here so we know what you did>
     """
+    score = currentGameState.getScore()
 
-    return currentGameState.getScore()
+    # we die
+    if currentGameState.isLose():
+        return float("-inf")
+    # we win
+    if currentGameState.isWin():
+        return float("inf")
+
+    return score
 
 class ContestAgent(MultiAgentSearchAgent):
     """
