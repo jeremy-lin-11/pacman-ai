@@ -355,8 +355,8 @@ def betterEvaluationFunction(currentGameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable evaluation function.
 
-    DESCRIPTION: Creating a linear combination of features and weights associated with those features
-    in order to determine the final score
+    DESCRIPTION: Creating a linear combination of features and weights associated with those
+    features in order to determine the final score
     """
     # we die
     if currentGameState.isLose():
@@ -381,7 +381,7 @@ def betterEvaluationFunction(currentGameState):
         # if the ghost is too close, have pacman focus on running away vs collecting food
         if ghostDist < 2:
             minFoodDist = 9999
-    
+
     # using reciprocal of food distance
     foodScore = 1.0 / minFoodDist
 
