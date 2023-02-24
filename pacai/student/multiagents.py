@@ -355,18 +355,39 @@ def betterEvaluationFunction(currentGameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable evaluation function.
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: Creating a linear combination of features and weights associated with those features
+    in order to determine the final score
     """
-    score = currentGameState.getScore()
-
     # we die
     if currentGameState.isLose():
         return float("-inf")
     # we win
     if currentGameState.isWin():
         return float("inf")
+    score = currentGameState.getScore()
+    pacmanPosition = currentGameState.getPacmanPosition()
+    ghostPositions = currentGameState.getGhostPositions()
+    foodPositions = currentGameState.getFood().asList()
+    pillCount = len(currentGameState.getCapsules())
+    foodCount = len(foodPositions)
+    minFoodDist = 1.0
+    foodDistances = [manhattan(pacmanPosition, foodPos) for foodPos in foodPositions]
 
-    return score
+    if foodCount > 0:
+        minFoodDist = min(foodDistances)
+
+    for ghostPos in ghostPositions:
+        ghostDist = manhattan(pacmanPosition, ghostPos)
+        # if the ghost is too close, have pacman focus on running away vs collecting food
+        if ghostDist < 2:
+            minFoodDist = 9999
+    
+    # using reciprocal of food distance
+    foodScore = 1.0 / minFoodDist
+
+    finalScore = (10 * foodScore) + (200 * score) + (-100 * foodCount) + (-10 * pillCount)
+
+    return finalScore
 
 class ContestAgent(MultiAgentSearchAgent):
     """
