@@ -28,6 +28,10 @@ class QLearningAgent(ReinforcementAgent):
     Pick randomly from a list.
 
     DESCRIPTION: <Write something here so we know what you did.>
+    Q-value agent has added exploration , allows it to train with adjustable
+    learning rate and epsilon factor
+    - benefitial when we cannot calculate the entire model beforehand like
+    in many real world situations.
     """
 
     def __init__(self, index, **kwargs):
@@ -92,7 +96,7 @@ class QLearningAgent(ReinforcementAgent):
         With probability `pacai.agents.learning.reinforcement.ReinforcementAgent.getEpsilon`,
         we should take a random action and take the best policy action otherwise.
         Note that if there are no legal actions, which is the case at the terminal state,
-        you should choose None as the action. 
+        you should choose None as the action.
         """
         actions = self.getLegalActions(state)
 
@@ -159,6 +163,9 @@ class ApproximateQAgent(PacmanQAgent):
     Should update your weights based on transition.
 
     DESCRIPTION: <Write something here so we know what you did.>
+    Followed the equations for q9
+    q value is now calculated by f(s,a) * w
+    weights are updated with their corresponding features and learning rate
     """
 
     def __init__(self, index,
@@ -187,9 +194,11 @@ class ApproximateQAgent(PacmanQAgent):
 
     def update(self, state, action, nextState, reward):
         features = self.featExtractor.getFeatures(self.featExtractor, state, action)
-        delta = (reward + self.discountRate * self.getValue(nextState)) - self.getQValue(state, action)
+        delta = (reward + self.discountRate *
+                 self.getValue(nextState)) - self.getQValue(state, action)
         for feature in features:
-            self.weights[feature] = self.getWeight(feature) + (self.getAlpha() * delta * features[feature])
+            self.weights[feature] = self.getWeight(feature) + (
+                self.getAlpha() * delta * features[feature])
 
     def final(self, state):
         """
