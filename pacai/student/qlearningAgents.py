@@ -1,5 +1,6 @@
 from pacai.agents.learning.reinforcement import ReinforcementAgent
 from pacai.util import reflection, probability
+# from pacai.core.featureExtractors import FeatureExtractor
 import random
 
 class QLearningAgent(ReinforcementAgent):
@@ -168,11 +169,27 @@ class ApproximateQAgent(PacmanQAgent):
         # You might want to initialize weights here.
         self.weights = {}
 
+    def getWeight(self, key):
+        return self.weights.get(key, 0.0)
+
     def getQValue(self, state, action):
-        return super().getQValue(state, action)
+        # features = FeatureExtractor.getFeatures(state, action)
+        # print(state)
+        features = self.featExtractor.getFeatures(self.featExtractor, state, action)
+        # print("features: \n", features)
+        qValue = 0
+        for feature in features:
+            # print("feature: \n", feature)
+            # state = feature[0]
+            # print(state)
+            qValue += self.getWeight(feature) * features[feature]
+        return qValue
 
     def update(self, state, action, nextState, reward):
-        return super().update(state, action, nextState, reward)
+        features = self.featExtractor.getFeatures(self.featExtractor, state, action)
+        delta = (reward + self.discountRate * self.getValue(nextState)) - self.getQValue(state, action)
+        for feature in features:
+            self.weights[feature] = self.getWeight(feature) + (self.getAlpha() * delta * features[feature])
 
     def final(self, state):
         """
@@ -186,4 +203,6 @@ class ApproximateQAgent(PacmanQAgent):
         if self.episodesSoFar == self.numTraining:
             # You might want to print your weights here for debugging.
             # *** Your Code Here ***
-            raise NotImplementedError()
+            # print("weights: \n", self.weights.values())
+            print("Weight Vector Length: ", len(self.weights))
+            # raise NotImplementedError()
