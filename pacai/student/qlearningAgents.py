@@ -165,6 +165,13 @@ class ApproximateQAgent(PacmanQAgent):
         self.featExtractor = reflection.qualifiedImport(extractor)
 
         # You might want to initialize weights here.
+        self.weights = {}
+    
+    def getQValue(self, state, action):
+        return super().getQValue(state, action)
+    
+    def update(self, state, action, nextState, reward):
+        return super().update(state, action, nextState, reward)
 
     def final(self, state):
         """
