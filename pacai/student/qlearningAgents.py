@@ -82,8 +82,7 @@ class QLearningAgent(ReinforcementAgent):
         Whereas this method returns the best action itself.
         """
         value = self.getValue(state)
-        actions = [action for action in self.getLegalActions(state)
-                   if self.getQValue(state, action) == value]
+        actions=[action for action in self.getLegalActions(state) if self.getQValue(state,action)==value]
 
         if len(actions) == 0:
             return None
@@ -194,8 +193,8 @@ class ApproximateQAgent(PacmanQAgent):
 
     def update(self, state, action, nextState, reward):
         features = self.featExtractor.getFeatures(self.featExtractor, state, action)
-        delta = (reward + self.discountRate *
-                 self.getValue(nextState)) - self.getQValue(state, action)
+        delta = (reward + self.discountRate * self.getValue(nextState)
+                 ) - self.getQValue(state, action)
         for feature in features:
             self.weights[feature] = self.getWeight(feature) + (
                 self.getAlpha() * delta * features[feature])
