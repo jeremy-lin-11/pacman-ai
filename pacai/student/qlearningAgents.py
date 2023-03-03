@@ -1,5 +1,6 @@
 from pacai.agents.learning.reinforcement import ReinforcementAgent
-from pacai.util import reflection
+from pacai.util import reflection, probability
+import random
 
 class QLearningAgent(ReinforcementAgent):
     """
@@ -25,20 +26,6 @@ class QLearningAgent(ReinforcementAgent):
     `random.choice`:
     Pick randomly from a list.
 
-    Additional methods to implement:
-
-    `pacai.agents.base.BaseAgent.getAction`:
-    Compute the action to take in the current state.
-    With probability `pacai.agents.learning.reinforcement.ReinforcementAgent.getEpsilon`,
-    we should take a random action and take the best policy action otherwise.
-    Note that if there are no legal actions, which is the case at the terminal state,
-    you should choose None as the action.
-
-    `pacai.agents.learning.reinforcement.ReinforcementAgent.update`:
-    The parent class calls this to observe a state transition and reward.
-    You should do your Q-Value update here.
-    Note that you should never call this function, it will be called on your behalf.
-
     DESCRIPTION: <Write something here so we know what you did.>
     """
 
@@ -46,6 +33,7 @@ class QLearningAgent(ReinforcementAgent):
         super().__init__(index, **kwargs)
 
         # You can initialize Q-values here.
+        self.qValues = {}
 
     def getQValue(self, state, action):
         """
@@ -53,8 +41,10 @@ class QLearningAgent(ReinforcementAgent):
         and `pacai.core.directions.Directions`.
         Should return 0.0 if the (state, action) pair has never been seen.
         """
-
-        return 0.0
+        if (state, action) in self.qValues:
+            return self.qValues[(state, action)]
+        else:
+            return 0.0
 
     def getValue(self, state):
         """
@@ -68,8 +58,11 @@ class QLearningAgent(ReinforcementAgent):
         which returns the actual best action.
         Whereas this method returns the value of the best action.
         """
-
-        return 0.0
+        qValues = [self.getQValue(state, action) for action in self.getLegalActions(state)]
+        if len(qValues) == 0:
+            return 0.0
+        else:
+            return max(qValues)
 
     def getPolicy(self, state):
         """
@@ -83,8 +76,44 @@ class QLearningAgent(ReinforcementAgent):
         which returns the value of the best action.
         Whereas this method returns the best action itself.
         """
+        value = self.getValue(state)
+        actions = [action for action in self.getLegalActions(state) if self.getQValue(state, action) == value]
 
-        return None
+        if len(actions) == 0:
+            return None
+        else:
+            return random.choice(actions)
+    
+    def getAction(self, state):
+        """
+        Compute the action to take in the current state.
+        With probability `pacai.agents.learning.reinforcement.ReinforcementAgent.getEpsilon`,
+        we should take a random action and take the best policy action otherwise.
+        Note that if there are no legal actions, which is the case at the terminal state,
+        you should choose None as the action.        
+        """
+        actions = self.getLegalActions(state)
+
+        if len(actions) == 0:
+            return None
+        elif probability.flipCoin(self.getEpsilon()):
+            return random.choice(actions)
+        else:
+            return self.getPolicy(state)
+    
+    def update(self, state, action, nextState, reward):
+        """
+        The parent class calls this to observe a state transition and reward.
+        You should do your Q-Value update here.
+        Note that you should never call this function, it will be called on your behalf.
+        """
+        alpha = self.getAlpha()
+        discountRate = self.getDiscountRate()
+        qValue = self.getQValue(state, action)
+        nextValue = self.getValue(nextState)
+        
+        updateValue = (1 - alpha) * qValue + alpha * (reward + discountRate * nextValue)
+        self.qValues[(state, action)] = updateValue
 
 class PacmanQAgent(QLearningAgent):
     """

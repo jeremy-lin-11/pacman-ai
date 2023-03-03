@@ -1,5 +1,5 @@
 from pacai.agents.learning.value import ValueEstimationAgent
-# from pacai.core import mdp
+# from pacai.core.mdp import MarkovDecisionProcess
 import random
 
 class ValueIterationAgent(ValueEstimationAgent):

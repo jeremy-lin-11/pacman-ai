@@ -93,12 +93,18 @@ def question3e():
 def question6():
     """
     [Enter a description of what you did here.]
+    I don't think it's possible with only 50 iterations
+    the agent doesn't have enough time to fully explore the map
+    and see that it is more rewarding to cross the bridge.
+
+    This is even with a higher exploration rate as well as a decently
+    low learning rate so that it doesn't converge too quickly
     """
 
-    answerEpsilon = 0.3
-    answerLearningRate = 0.5
-
-    return answerEpsilon, answerLearningRate
+    answerEpsilon = 0.6
+    answerLearningRate = 0.3
+    return NOT_POSSIBLE
+    # return answerEpsilon, answerLearningRate
 
 if __name__ == '__main__':
     questions = [
