@@ -12,20 +12,25 @@ NOT_POSSIBLE = None
 def question2():
     """
     [Enter a description of what you did here.]
+    I made the noise really small so that the agent is less likely
+    to end up in an unintended successor state when they perform an
+    action.
     """
 
     answerDiscount = 0.9
-    answerNoise = 0.2
+    answerNoise = 0.0001
 
     return answerDiscount, answerNoise
 
 def question3a():
     """
     [Enter a description of what you did here.]
+    Decreased discount so higher penalty for taking more moves.
+    Decreased noise so likely to take risk
     """
 
-    answerDiscount = 0.9
-    answerNoise = 0.2
+    answerDiscount = 0.3
+    answerNoise = 0.0001
     answerLivingReward = 0.0
 
     return answerDiscount, answerNoise, answerLivingReward
@@ -33,10 +38,12 @@ def question3a():
 def question3b():
     """
     [Enter a description of what you did here.]
+    decrease discount for same as last
+    higher noise so more risk averse
     """
 
-    answerDiscount = 0.9
-    answerNoise = 0.2
+    answerDiscount = 0.3
+    answerNoise = 0.1
     answerLivingReward = 0.0
 
     return answerDiscount, answerNoise, answerLivingReward
@@ -44,10 +51,12 @@ def question3b():
 def question3c():
     """
     [Enter a description of what you did here.]
+    discount high so less penalty for more moves
+    low noise so less risk averse
     """
 
     answerDiscount = 0.9
-    answerNoise = 0.2
+    answerNoise = 0.0001
     answerLivingReward = 0.0
 
     return answerDiscount, answerNoise, answerLivingReward
@@ -55,6 +64,8 @@ def question3c():
 def question3d():
     """
     [Enter a description of what you did here.]
+    change nothing, already incentivize more moves
+    and less risk
     """
 
     answerDiscount = 0.9
@@ -66,11 +77,16 @@ def question3d():
 def question3e():
     """
     [Enter a description of what you did here.]
+    no penalty on moves
+    always go exactly where it chooses
+    no penalty for staying alive
+    makes it avoid everything and get stuck
+
     """
 
-    answerDiscount = 0.9
-    answerNoise = 0.2
-    answerLivingReward = 0.0
+    answerDiscount = 1.0
+    answerNoise = 0.0
+    answerLivingReward = 1.0
 
     return answerDiscount, answerNoise, answerLivingReward
 

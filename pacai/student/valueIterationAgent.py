@@ -1,4 +1,6 @@
 from pacai.agents.learning.value import ValueEstimationAgent
+# from pacai.core import mdp
+import random
 
 class ValueIterationAgent(ValueEstimationAgent):
     """
@@ -39,18 +41,61 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.values = {}  # A dictionary which holds the q-values for each state.
 
         # Compute the values here.
-        raise NotImplementedError()
+        # For each state, calculate the Q* of the state with all of its possible actions
+        for i in range(iters):
+            newValues = self.values.copy()
+            # print(self.mdp.getStates())
+            for state in self.mdp.getStates():
+                optimalAction = self.getAction(state)
+                if optimalAction is not None:
+                    newValues[state] = self.getQValue(state, optimalAction)
+            
+            self.values = newValues
+
+        # raise NotImplementedError()
 
     def getValue(self, state):
         """
         Return the value of the state (computed in __init__).
         """
-
-        return self.values.get(state, 0.0)
+        value = self.values.get(state, 0.0)
+        # print("getValue --- \nreturn: ", value, "\n")
+        return value
 
     def getAction(self, state):
         """
         Returns the policy at the state (no exploration).
         """
+        action = self.getPolicy(state)
+        # print("getAction --- \nreturn: ", action, "\n")
+        return action
 
-        return self.getPolicy(state)
+    def getQValue(self, state, action):
+        # Q*(s,a) = sum of (transitions * (reward + discount*value))
+        # print("--- getQvalue --- \nstate: ", state, " action: ", action, "\n")
+        transitions = self.mdp.getTransitionStatesAndProbs(state, action)
+        qValue = 0
+        for nextState, prob in transitions:
+            # print(self.values)
+            reward = self.mdp.getReward(state, action, nextState)
+            qValue += prob * (reward + self.discountRate * self.getValue(nextState))
+
+        return qValue
+    
+    def getPolicy(self, state):
+        # print("--- getPolicy --- \nstate: ", state, "\n")
+        if self.mdp.isTerminal(state):
+            # print("--- getPolicy --- return: None\n")
+            return None
+        else:
+            actions = self.mdp.getPossibleActions(state)
+            optimalQ = self.getQValue(state, actions[0])
+            optimalPolicy = actions[0]
+
+            for action in actions:
+                qValue = self.getQValue(state, action)
+                if optimalQ < qValue:
+                    optimalQ = qValue
+                    optimalPolicy = action
+            # print("--- getPolicy --- return: ", optimalPolicy, "\n")
+            return optimalPolicy
