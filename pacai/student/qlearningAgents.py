@@ -77,20 +77,21 @@ class QLearningAgent(ReinforcementAgent):
         Whereas this method returns the best action itself.
         """
         value = self.getValue(state)
-        actions = [action for action in self.getLegalActions(state) if self.getQValue(state, action) == value]
+        actions = [action for action in self.getLegalActions(state)
+                   if self.getQValue(state, action) == value]
 
         if len(actions) == 0:
             return None
         else:
             return random.choice(actions)
-    
+
     def getAction(self, state):
         """
         Compute the action to take in the current state.
         With probability `pacai.agents.learning.reinforcement.ReinforcementAgent.getEpsilon`,
         we should take a random action and take the best policy action otherwise.
         Note that if there are no legal actions, which is the case at the terminal state,
-        you should choose None as the action.        
+        you should choose None as the action. 
         """
         actions = self.getLegalActions(state)
 
@@ -100,7 +101,7 @@ class QLearningAgent(ReinforcementAgent):
             return random.choice(actions)
         else:
             return self.getPolicy(state)
-    
+
     def update(self, state, action, nextState, reward):
         """
         The parent class calls this to observe a state transition and reward.
@@ -111,7 +112,7 @@ class QLearningAgent(ReinforcementAgent):
         discountRate = self.getDiscountRate()
         qValue = self.getQValue(state, action)
         nextValue = self.getValue(nextState)
-        
+
         updateValue = (1 - alpha) * qValue + alpha * (reward + discountRate * nextValue)
         self.qValues[(state, action)] = updateValue
 
@@ -166,10 +167,10 @@ class ApproximateQAgent(PacmanQAgent):
 
         # You might want to initialize weights here.
         self.weights = {}
-    
+
     def getQValue(self, state, action):
         return super().getQValue(state, action)
-    
+
     def update(self, state, action, nextState, reward):
         return super().update(state, action, nextState, reward)
 

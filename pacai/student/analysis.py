@@ -101,8 +101,8 @@ def question6():
     low learning rate so that it doesn't converge too quickly
     """
 
-    answerEpsilon = 0.6
-    answerLearningRate = 0.3
+    # answerEpsilon = 0.6
+    # answerLearningRate = 0.3
     return NOT_POSSIBLE
     # return answerEpsilon, answerLearningRate
 

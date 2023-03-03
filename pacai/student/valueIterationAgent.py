@@ -1,6 +1,6 @@
 from pacai.agents.learning.value import ValueEstimationAgent
 # from pacai.core.mdp import MarkovDecisionProcess
-import random
+# import random
 
 class ValueIterationAgent(ValueEstimationAgent):
     """
@@ -49,7 +49,7 @@ class ValueIterationAgent(ValueEstimationAgent):
                 optimalAction = self.getAction(state)
                 if optimalAction is not None:
                     newValues[state] = self.getQValue(state, optimalAction)
-            
+
             self.values = newValues
 
         # raise NotImplementedError()
@@ -81,7 +81,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             qValue += prob * (reward + self.discountRate * self.getValue(nextState))
 
         return qValue
-    
+
     def getPolicy(self, state):
         # print("--- getPolicy --- \nstate: ", state, "\n")
         if self.mdp.isTerminal(state):
