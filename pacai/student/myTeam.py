@@ -120,6 +120,7 @@ def createTeam(firstIndex, secondIndex, isRed,
 #             'reverse': -2
 #         }
 
+# https://github.com/bslqy/Pacman-Capture-the-flag/blob/master/final.py
 class OffensiveReflexAgent(ReflexCaptureAgent):
     """
     A reflex agent that seeks food. This is an agent
