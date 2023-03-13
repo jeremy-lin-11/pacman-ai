@@ -1,13 +1,13 @@
 # from pacai.util.priorityQueue import PriorityQueue
-from pacai.util.queue import Queue
+# from pacai.util.queue import Queue
 from pacai.agents.capture.dummy import DummyAgent
 from pacai.agents.capture.reflex import ReflexCaptureAgent
-from pacai.util import util
+# from pacai.util import util
 from pacai.core.directions import Directions
-import logging
+# import logging
 import random
-import time
-from collections import Counter
+# import time
+# from collections import Counter
 # import time
 def createTeam(firstIndex, secondIndex, isRed,
         first = DummyAgent,
@@ -103,7 +103,7 @@ class DefensiveAgent(ReflexCaptureAgent):
 
     def selectPatrolTarget(self):
 
-        maxProb=max(self.defenderList[x] for x in self.defenderList.keys())
+        maxProb = max(self.defenderList[x] for x in self.defenderList.keys())
         bestTarget = filter(lambda x: self.defenderList[x] == maxProb, self.defenderList.keys())
         return random.choice(bestTarget)
 
@@ -126,7 +126,7 @@ class DefensiveAgent(ReflexCaptureAgent):
                 self.noWall.append((middle, i))
 
         self.DefendingProbability(gameState)
-    
+
     def chooseAction(self, gameState):
         """
         Picks among the actions with the highest return from `ReflexCaptureAgent.evaluate`.
@@ -144,14 +144,15 @@ class DefensiveAgent(ReflexCaptureAgent):
         for i in self.getOpponents(gameState):
             opponentsState.append(gameState.getAgentState(i))
 
-        visible = [opponent for opponent in opponentsState if opponent.isPacman and opponent.getPosition() != None]
+        visible = [opponent for opponent in opponentsState if
+                   opponent.isPacman and opponent.getPosition() is not None]
 
         if len(visible) > 0:
             positions = [invader.getPosition() for invader in visible]
             minDis, self.target = min(
                 [(self.getMazeDistance(CurrentPosition, position), position) for position in positions])
 
-        elif self.previousFood != None:
+        elif self.previousFood is not None:
             eaten = [food for food in self.previousFood if food not in self.getFoodYouAreDefending(gameState).asList()]
             if len(eaten) > 0:
                 self.target = eaten.pop()
