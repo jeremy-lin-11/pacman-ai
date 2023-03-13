@@ -119,7 +119,7 @@ def createTeam(firstIndex, secondIndex, isRed,
 #             'stop': -100,
 #             'reverse': -2
 #         }
-
+# https://github.com/lesleyzheng/Pacman-Capture-The-Flag/blob/master/src/myTeam.py
 # https://github.com/bslqy/Pacman-Capture-the-flag/blob/master/final.py
 class OffensiveReflexAgent(ReflexCaptureAgent):
     """
