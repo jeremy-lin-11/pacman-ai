@@ -1,10 +1,17 @@
-from pacai.util import reflection
+# from pacai.util.priorityQueue import PriorityQueue
+# from pacai.util.queue import Queue
+from pacai.agents.capture.dummy import DummyAgent
 from pacai.agents.capture.reflex import ReflexCaptureAgent
+# from pacai.util import util
 from pacai.core.directions import Directions
-
+# import logging
+import random
+# import time
+# from collections import Counter
+# import time
 def createTeam(firstIndex, secondIndex, isRed,
-        first = 'pacai.student.myTeam.OffensiveReflexAgent',
-        second = 'pacai.student.myTeam.DefensiveReflexAgent'):
+        first = DummyAgent,
+        second = DummyAgent):
     """
     This function should return a list of two agents that will form the capture team,
     initialized using firstIndex and secondIndex as their agent indexed.
@@ -12,15 +19,15 @@ def createTeam(firstIndex, secondIndex, isRed,
     and will be False if the blue team is being created.
     """
 
-    firstAgent = reflection.qualifiedImport(first)
-    secondAgent = reflection.qualifiedImport(second)
+    firstAgent = OffensiveAgent
+    secondAgent = DefensiveAgent
 
     return [
         firstAgent(firstIndex),
         secondAgent(secondIndex),
     ]
 
-class OffensiveReflexAgent(ReflexCaptureAgent):
+class OffensiveAgent(ReflexCaptureAgent):
     """
     A reflex agent that seeks food.
     This agent will give you an idea of what an offensive agent might look like,
@@ -44,32 +51,16 @@ class OffensiveReflexAgent(ReflexCaptureAgent):
             minDistance = min([self.getMazeDistance(myPos, food) for food in foodList])
             features['distanceToFood'] = minDistance
 
-        # Computes distance to invaders we can see.
-        enemies = [successor.getAgentState(i) for i in self.getOpponents(successor)]
-        invaders = [a for a in enemies if not a.isPacman() and a.getPosition() is not None]
-        # features['numInvaders'] = len(invaders)
-
-        if (len(invaders) > 0):
-            dists = [self.getMazeDistance(myPos, a.getPosition()) for a in invaders
-                     if successor.getAgentState(self.index).isPacman()]
-            if len(dists) > 0:
-                features['minInvaderDist'] = min(dists)
-                if min(dists) < 3:
-                    features['invaderDistance'] = min(dists)
-                else:
-                    features['invaderDistance'] = 6
-
         return features
 
     def getWeights(self, gameState, action):
         return {
             'successorScore': 100,
-            'distanceToFood': -5,
-            'invaderDistance': 10,
-            'minInvaderDist': 1
+            'distanceToFood': -1
         }
 
-class DefensiveReflexAgent(ReflexCaptureAgent):
+
+class DefensiveAgent(ReflexCaptureAgent):
     """
     A reflex agent that tries to keep its side Pacman-free.
     This is to give you an idea of what a defensive agent could be like.
@@ -78,43 +69,120 @@ class DefensiveReflexAgent(ReflexCaptureAgent):
 
     def __init__(self, index, **kwargs):
         super().__init__(index)
+        self.target = None
+        self.previousFood = None
 
-    def getFeatures(self, gameState, action):
-        features = {}
+    def DefendingProbability(self, gameState):
+        """
+        This method calculates the minimum distance from our patrol
+        points to our pacdots. The inverse of this distance will
+        be used as the probability to select the patrol point as
+        target.
+        """
+        foodList = self.getFoodYouAreDefending(gameState).asList()
+        total = 0
 
-        successor = self.getSuccessor(gameState, action)
-        myState = successor.getAgentState(self.index)
-        myPos = myState.getPosition()
+        # Get the minimum distance from the food to our
+        # patrol points.
 
-        # Computes whether we're on defense (1) or offense (0).
-        features['onDefense'] = 1
-        if (myState.isPacman()):
-            features['onDefense'] = 0
+        for position in self.noWall:
+            closestFoodDistance = 99999
+            foodList = self.getFoodYouAreDefending(gameState).asList()
+            closestFoodDistance = min([self.getMazeDistance(position, food) for food in foodList])
 
-        # Computes distance to invaders we can see.
-        enemies = [successor.getAgentState(i) for i in self.getOpponents(successor)]
-        invaders = [a for a in enemies if a.isPacman() and a.getPosition() is not None]
-        features['numInvaders'] = len(invaders)
+            if closestFoodDistance == 0:
+                closestFoodDistance = 1
+            self.defenderList[position] = 1.0 / float(closestFoodDistance)
+            total += self.defenderList[position]
 
-        if (len(invaders) > 0):
-            dists = [self.getMazeDistance(myPos, a.getPosition()) for a in invaders]
-            features['invaderDistance'] = min(dists)
+        # Normalize the value used as probability.
+        if total == 0:
+            total = 1
+        for x in self.defenderList.keys():
+            self.defenderList[x] = float(self.defenderList[x]) / float(total)
 
-        if (action == Directions.STOP):
-            features['stop'] = 1
+    def selectPatrolTarget(self):
 
-        rev = Directions.REVERSE[gameState.getAgentState(self.index).getDirection()]
-        if (action == rev):
-            features['reverse'] = 1
+        maxProb = max(self.defenderList[x] for x in self.defenderList.keys())
+        bestTarget = filter(lambda x: self.defenderList[x] == maxProb, self.defenderList.keys())
+        return random.choice(bestTarget)
 
-        return features
+    def registerInitialState(self, gameState):
+        super().registerInitialState(gameState)
+        self.distancer.getMazeDistances()
 
-    def getWeights(self, gameState, action):
-        return {
-            'numInvaders': -1000,
-            'onDefense': 100,
-            'invaderDistance': -100,
-            'stop': -100,
-            'reverse': -2
-        }
+        # Compute central positions without walls from map layout.
+        # The defender will walk among these positions to defend
+        # its territory.
 
+        self.defenderList = {}
+        if self.red:
+            middle = int((gameState.getInitialLayout().width - 2) / 2)
+        else:
+            middle = int(((gameState.getInitialLayout().width - 2) / 2) + 1)
+        self.noWall = []
+        for i in range(1, gameState.getInitialLayout().height - 1):
+            if not gameState.hasWall(middle, i):
+                self.noWall.append((middle, i))
+
+        self.DefendingProbability(gameState)
+
+    def chooseAction(self, gameState):
+        """
+        Picks among the actions with the highest return from `ReflexCaptureAgent.evaluate`.
+        """
+
+        defendingFoodList = self.getFoodYouAreDefending(gameState).asList()
+        if self.previousFood and len(self.previousFood) != len(defendingFoodList):
+            self.DefendingProbability(gameState)
+
+        CurrentPosition = gameState.getAgentPosition(self.index)
+        if CurrentPosition == self.target:
+            self.target = None
+
+        opponentsState = []
+        for i in self.getOpponents(gameState):
+            opponentsState.append(gameState.getAgentState(i))
+
+        visible = [opponent for opponent in opponentsState if
+                   opponent.isPacman and opponent.getPosition() is not None]
+
+        if len(visible) > 0:
+            positions = [invader.getPosition() for invader in visible]
+            minDis, self.target = min(
+                [(self.getMazeDistance(CurrentPosition, position), position) for position in positions])
+
+        elif self.previousFood is not None:
+            eaten = [food for food in self.previousFood if food not in self.getFoodYouAreDefending(gameState).asList()]
+            if len(eaten) > 0:
+                self.target = eaten.pop()
+
+        self.previousFood = self.getFoodYouAreDefending(gameState).asList()
+
+        if self.target == None and len(self.getFoodYouAreDefending(gameState).asList()) <= 4:
+            food = self.getFoodYouAreDefending(gameState).asList() + self.getCapsulesYouAreDefending(gameState)
+            self.target = random.choice(food)
+
+        elif self.target == None:
+            self.target = self.selectPatrolTarget()
+
+
+        actions = gameState.getLegalActions(self.index)
+
+
+        feasible = [a for a in actions if not a == Directions.STOP
+                    and not gameState.generateSuccessor(self.index, a).getAgentState(self.index).isPacman()]
+        fvalues = [
+            self.getMazeDistance(gameState.generateSuccessor(self.index, a).getAgentPosition(self.index), self.target)
+            for a in actions if
+            not a == Directions.STOP and not gameState.generateSuccessor(self.index, a).getAgentState(
+                self.index).isPacman()]
+
+
+        # Randomly chooses between ties.
+
+        best = min(fvalues)
+        ties = list(filter(lambda x: x[0] == best, zip(fvalues, feasible)))
+
+        # print 'eval time for defender agent %d: %.4f' % (self.index, time.time() - start)
+        return random.choice(ties)[1]
