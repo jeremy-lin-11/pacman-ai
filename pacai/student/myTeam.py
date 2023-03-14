@@ -1,11 +1,11 @@
-# from pacai.util.priorityQueue import PriorityQueue
-# from pacai.util.queue import Queue
 from pacai.agents.capture.dummy import DummyAgent
 from pacai.agents.capture.reflex import ReflexCaptureAgent
-# from pacai.util import util
 from pacai.core.directions import Directions
-# import logging
 import random
+# from pacai.util.priorityQueue import PriorityQueue
+# from pacai.util.queue import Queue
+# from pacai.util import util
+# import logging
 # import time
 # from collections import Counter
 # import time
@@ -150,34 +150,34 @@ class DefensiveAgent(ReflexCaptureAgent):
         if len(visible) > 0:
             positions = [invader.getPosition() for invader in visible]
             minDis, self.target = min(
-                [(self.getMazeDistance(CurrentPosition, position), position) for position in positions])
+                [(self.getMazeDistance(CurrentPosition, position), position) for
+                 position in positions])
 
         elif self.previousFood is not None:
-            eaten = [food for food in self.previousFood if food not in self.getFoodYouAreDefending(gameState).asList()]
+            eaten = [food for food in self.previousFood if
+                     food not in self.getFoodYouAreDefending(gameState).asList()]
             if len(eaten) > 0:
                 self.target = eaten.pop()
 
         self.previousFood = self.getFoodYouAreDefending(gameState).asList()
 
-        if self.target == None and len(self.getFoodYouAreDefending(gameState).asList()) <= 4:
-            food = self.getFoodYouAreDefending(gameState).asList() + self.getCapsulesYouAreDefending(gameState)
+        if self.target is None and len(self.getFoodYouAreDefending(gameState).asList()) <= 4:
+            food = self.getFoodYouAreDefending(
+                gameState).asList() + self.getCapsulesYouAreDefending(gameState)
             self.target = random.choice(food)
 
-        elif self.target == None:
+        elif self.target is None:
             self.target = self.selectPatrolTarget()
-
 
         actions = gameState.getLegalActions(self.index)
 
-
         feasible = [a for a in actions if not a == Directions.STOP
-                    and not gameState.generateSuccessor(self.index, a).getAgentState(self.index).isPacman()]
-        fvalues = [
-            self.getMazeDistance(gameState.generateSuccessor(self.index, a).getAgentPosition(self.index), self.target)
-            for a in actions if
-            not a == Directions.STOP and not gameState.generateSuccessor(self.index, a).getAgentState(
-                self.index).isPacman()]
-
+                    and not gameState.generateSuccessor(self.index,
+                                                        a).getAgentState(self.index).isPacman()]
+        fvalues = [self.getMazeDistance(
+            gameState.generateSuccessor(self.index, a).getAgentPosition(
+                self.index), self.target) for a in actions if not a == Directions.STOP
+            and not gameState.generateSuccessor(self.index, a).getAgentState(self.index).isPacman()]
 
         # Randomly chooses between ties.
 
