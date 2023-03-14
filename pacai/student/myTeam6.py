@@ -2,7 +2,7 @@ from pacai.agents.capture.dummy import DummyAgent
 from pacai.agents.capture.reflex import ReflexCaptureAgent
 from pacai.core.directions import Directions
 import random
-# import time
+import time
 # from pacai.util.priorityQueue import PriorityQueue
 # from pacai.util.queue import Queue
 # from pacai.util import util
@@ -36,8 +36,10 @@ class OffensiveAgent(ReflexCaptureAgent):
 
     def __init__(self, index, **kwargs):
         super().__init__(index)
-
+    
     def chooseAction(self, gameState):
+        #minmax()
+        #method that caches distances to the food
         # Returns max value from future predictions to make ideal action for pacman
         def maxVal(state, agentIndex, currDepth):
             currDepth += 1
@@ -51,8 +53,7 @@ class OffensiveAgent(ReflexCaptureAgent):
                 if direction == "Stop":
                     continue
                 if agentIndex + 1 < state.getNumAgents():
-                    v = max(v, minVal(state.generateSuccessor(agentIndex, direction),
-                                      agentIndex + 1, currDepth))
+                    v = max(v, minVal(state.generateSuccessor(agentIndex, direction), agentIndex + 1, currDepth))
                 else:
                     v = max(v, minVal(state.generateSuccessor(agentIndex, direction), 0, currDepth))
             return v
@@ -84,9 +85,8 @@ class OffensiveAgent(ReflexCaptureAgent):
             if direction == "Stop":
                 continue
             successorScore = float("-inf")
-            if self.index + 1 < gameState.getNumAgents():
-                successorScore = minVal(gameState.generateSuccessor(self.index, direction),
-                                        self.index + 1, 0)
+            if self.index + 1 < gameState.getNumAgents():    
+                successorScore = minVal(gameState.generateSuccessor(self.index, direction), self.index + 1, 0)
             else:
                 successorScore = minVal(gameState.generateSuccessor(self.index, direction), 0, 0)
             # Checks if current action results in a larger score than max score
@@ -108,6 +108,9 @@ class OffensiveAgent(ReflexCaptureAgent):
 
     def getFeatures(self, gameState):
         features = {}
+        #myPos = gameState.getAgentPosition(self.index)
+        #successor = self.getSuccessor(gameState, action)
+        #myState = successor.getAgentState(self.index)
         features['successorScore'] = self.getScore(gameState)
 
         # Compute distance to the nearest food.
